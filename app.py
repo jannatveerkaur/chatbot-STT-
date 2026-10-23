@@ -1,5 +1,3 @@
-
-cat > app.py <<'EOF'
 import os
 import tempfile
 
@@ -24,9 +22,9 @@ def voice_chat(audio):
     audio_path = None
 
     try:
-        with open(audio, "rb") as file:
+        with open(audio, "rb") as audio_file:
             transcription = client.audio.transcriptions.create(
-                file=(os.path.basename(audio), file.read()),
+                file=(os.path.basename(audio), audio_file.read()),
                 model="whisper-large-v3-turbo",
                 response_format="text",
             )
@@ -65,13 +63,13 @@ def voice_chat(audio):
             audio_path = output.name
 
         gTTS(text=bot_text, lang="en").save(audio_path)
-
         return f"You said: {user_text}\n\n{bot_text}", audio_path
 
-    except Exception:
+    except Exception as error:
+        print(f"Chatbot error: {error}")
         if audio_path and os.path.exists(audio_path):
             os.remove(audio_path)
-        raise
+        return f"Sorry, an error occurred: {error}", None
 
 
 demo = gr.Interface(
@@ -92,4 +90,4 @@ demo = gr.Interface(
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "10000"))
     demo.launch(server_name="0.0.0.0", server_port=port)
-EOF
+PYTHON
